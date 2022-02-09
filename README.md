@@ -1,6 +1,6 @@
-# Private Point-of-Sale System
+# Private Point-of-Sale System (PPoSS)
 
-A _private_ point-of-sale system that achieves privacy by using a commit-reveal scheme.
+A _private_ point-of-sale system (PPoSS) that achieves privacy by using a commit-reveal scheme.
 
 > Note: this project is inspired by @abigger87's [cloaks](https://github.com/abigger87/cloaks), an extensible ERC-721 with a built-in commitment scheme.
 
@@ -8,13 +8,13 @@ A _private_ point-of-sale system that achieves privacy by using a commit-reveal 
 
 1. Alice (buyer/sender) is hungry and wants to buy a Chicken Pesto Parm from Sweetgreen.
 2. Alice wants to make/send her order on Optimism, but she is concerned about her order being publicly visible on-chain; Alice doesn't want others to know what is in the orders she's making/sending.
-3. Bob (contract/PPoS) is the PPoS as a smart contract on Optimism.
+3. Bob (contract/PPoSS) is the PPoSS as a smart contract on Optimism.
 4. Bob manages and processes the orders that are sent to it.
 5. However, the orders Bob it receives are _kept private from external actors_ by using a _commit-reveal scheme_.
 
-## PPoS's commit-reveal scheme
+## PPoSS's commit-reveal scheme
 
-On a higher-level, PPoS's commit-reveal scheme works as follows:
+On a higher-level, PPoSS's commit-reveal scheme works as follows:
 
 1. Alice sends her finalized order as a message in a locked box and sends it to Bob.
 2. Bob can't access the message because it's locked in the box, and Alice can't change the message because it's in Bob's possession.
@@ -33,3 +33,43 @@ One potential attack vector is the publicly available price that is paid for the
 ### 2. Anticipating order schedules
 
 With the information provided by the order contents that an account address makes, with a complete history of scheduled purchases (i.e. they know _when_ the account usually makes their orders from public transaction history on-chain), a malicious actor could create and submit a volley of fake orders to drive up gas prices for their victims. The malicious actor could also buy out certain items from a vendors menu, preventing their target from being able to make their regularly order. Further protocol design and research could be done to further reduce these kinds of attacks.
+
+## Architecture
+<!-- 
+At the moment, these are just ideas for what I think are the core features
+-->
+Critical features of the PPoSS protocol include:
+
+### 1. MEV minimization
+
+_Out-going_ transactions from the PPoSS protocol are protected against MEV, i.e. against:
+
+* [frontrunning](https://en.wikipedia.org/wiki/Front_running),
+* targeted attacks on order schedules (causes havoc for either the vendor or consumer),
+*
+* etc.
+
+### 2. Privacy
+
+In-going _and_ out-going transactions to the PPoSS protocol are kept private from external parties to maximize order confidentiality.
+
+### 3. Fast confirmations/receipts
+
+In traditional finance, consumer orders are typically processed instantly, along with a receipt that is sent to the buyer.
+
+PPoSS aims to maintain the same level of speed for order confirmations and receipts so that consumer purchases/sales feel just as familiar as in the tradfi world.
+
+<!-- 
+@todo  How the fuck do I achieve this?
+Need to think of a simple and good enough implementation to solve this
+-->
+
+<!-- ## Architecture/Design (Final) -->
+
+## Appendix
+
+### i. Only stablecoins, initially
+
+An obvious decision, yet it must be noted that users of the PPoSS protocol can only use stablecoins, at least initially, to pay for items from vendors (sellers).
+
+Although only stablecoins will be accepted initially by default, in the future, there could be other contracts/protocols that offer the feature to create escrow contracts between parties that enable purchases/sales with alternative tokens, e.g. ETH, WETH, WBTC, etc.
