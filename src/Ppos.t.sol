@@ -1,22 +1,22 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.10;
 
-import "ds-test/test.sol";
+import 'ds-test/test.sol';
 
-import "./Ppos.sol";
+import './PPoS.sol';
 
-contract PposTest is DSTest {
-    Ppos ppos;
+contract PPoSTest is DSTest {
+	PPoS ppos;
 
-    function setUp() public {
-        ppos = new Ppos();
-    }
+	function setUp() public {
+		ppos = new PPoS();
+	}
 
-    function testFail_basic_sanity() public {
-        assertTrue(false);
-    }
+	function testFail_basic_sanity() public {
+		assertTrue(false);
+	}
 
-    function test_basic_sanity() public {
-        assertTrue(true);
-    }
+	function test_basic_sanity() public {
+		assertTrue(true);
+	}
 }
