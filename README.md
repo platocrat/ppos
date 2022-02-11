@@ -1,4 +1,4 @@
-# Private Point-of-Sale Protocol (PPoS)
+# Private Point-of-Sale (PPoS) Protocol
 
 A _private_ point-of-sale protocol (PPoS) that achieves privacy by using a commit-reveal scheme.
 
