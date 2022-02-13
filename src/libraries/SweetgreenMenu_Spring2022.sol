@@ -3,27 +3,155 @@ pragma solidity ^0.8.10;
 
 // Sweetgreen's menu library
 contract SweetgreenMenu_Spring2022 {
+    mapping(address => Patron[]) public orders;
     mapping(address => Patron) patrons;
 
     /**
-     * @dev Array of patrons' orders
+     * @dev Arrays needed for a single `Order` struct.
+     *
+     *    - uint256[] warmBowls
+     *    - uint256[] salads
+     *    - CreateYourOwn[] createYourOwn
+     *    - uint256[] sides
+     *    - uint256[] beverages
+     *    - uint256[] dietaryRestrictions
      */
-    Order[] orders;
+    WarmBowl[] warmBowls;
+    Salad[] salads; // `Salad` enum array
+    CreateYourOwn[] createYourOwn; // `CreateYourOwn` struct array
+    Side[] sides; // `Sides` enum array
+    Beverage[] beverages; // // `Beverages` enum array
+    DietaryRestriction[] dietaryRestrictions; // `DietaryRestrictions` enum
+
+    DietaryRestriction[] uniqueDRs = [
+        DietaryRestriction.Diary,
+        DietaryRestriction.Fish,
+        DietaryRestriction.Gluten,
+        DietaryRestriction.Meat,
+        DietaryRestriction.Nuts,
+        DietaryRestriction.Soy
+    ];
 
     function createOrder(
         address _patron,
-        WarmBowls warmBowls,
-        Salads salads,
-        CreateYourOwn memory createYourOwn,
-        Sides sides,
-        Beverages beverages,
-        DietaryRestrictions dietaryRestrictions
+        WarmBowl[] memory _wbs,
+        Featured[] memory _feats,
+        Salad[] memory _salads,
+        CreateYourOwn[] memory _cyos,
+        Side[] memory _sides,
+        Beverage[] memory _bevs,
+        DietaryRestriction[] memory _drs
     ) public {
-        Order memory order;
-        Patron memory patron_ = patrons[_patron];
+        require(
+            _wbs.length > 5,
+            "You tried adding more than the order limit for WarmBowls!"
+        );
+        require(
+            _feats.length < 5,
+            "You tried adding more than the order limit for Featured items!"
+        );
+        require(
+            _salads.length < 5,
+            "You tried adding more than order order limit for Salads!"
+        );
+        require(
+            _cyos.length < 5,
+            "You tried adding more than the order limit for CreateYourOwns!"
+        );
+        require(
+            _sides.length < 5,
+            "You tried adding more than the order limit for Sides!"
+        );
+        require(
+            _drs.length < 6,
+            "You tried adding more than the order limit for DietaryRestrictions!"
+        );
+        // @todo Restrict duplicates on the UI as well!
+        require(
+            drsHasDuplicates(_drs) == true,
+            "DietaryRestrictions has duplicates!"
+        );
 
-        order.warmBowls = warmBowls;
+        Order storage order;
+        Patron storage patron;
+
+        if (
+            keccak256(abi.encode(patrons[_patron].address_)) !=
+            keccak256(abi.encodePacked(""))
+        ) {
+            patron = patrons[_patron]; // fetch stored Patron
+        } else {
+            patron.address_ = _patron;
+            patron.joined = block.timestamp;
+
+            patrons[_patron] = patron; // create and store new Patron
+        }
+
+        // Procedurally, create bowl
+        if (uint256(_wbs[0]) != 0) order.wbs = _wbs;
+        if (uint256(_feats[0]) != 0) order.feats = _feats;
+        if (uint256(_salads[0]) != 0) order.salads = _salads;
+        if (_cyos.length > 0) order.cyos = _cyos;
+        if (uint256(_sides[0]) != 0) order.sides = _sides;
+        if (uint256(_drs[0]) != 0) order.drs = _drs;
+
+        uint256 cost = totalCost(order);
+
+        patron.orders.push(order);
+        emit Order__Added(order, cost, block.timestamp);
     }
+
+    function totalCost(Order memory order) public returns (uint256) {
+        uint256 cost;
+
+        // @todo Get the cost of each sum of items that are added to the order
+        // order.wbs.cost;
+        // order.feats.cost;
+        // order.salads.cost;
+        // order.cyos.cost;
+        // order.sides.cost;
+        // order.drs.cost;
+
+        return cost;
+    }
+
+    /**
+     * @dev Checks whether the `DietaryRestriction[]` array has duplicates.
+     */
+    function drsHasDuplicates(DietaryRestriction[] memory drs)
+        public
+        returns (bool)
+    {
+        if (
+            keccak256(abi.encodePacked(uniqueDRs)) ==
+            keccak256(abi.encodePacked(drs))
+        ) return true;
+        if (
+            keccak256(abi.encodePacked(uniqueDRs)) ==
+            keccak256(abi.encodePacked(drs))
+        ) return false;
+    }
+
+    struct Patron {
+        Order[] orders;
+        address address_;
+        uint256 joined;
+    }
+
+    struct Order {
+        WarmBowl[] wbs; // `WarmBowl` enum array
+        Salad[] salads; // `Salad` enum array
+        Featured[] feats; // `Featured` enum array
+        CreateYourOwn[] cyos; // `CreateYourOwn` struct array
+        Side[] sides; // `Side` enum array
+        Beverage[] bevs; // // `Beverage` enum array
+        DietaryRestriction[] drs; // `DietaryRestriction` enum array
+    }
+
+    /**
+     * @dev Events for `Order`s
+     */
+    event Order__Added(Order order, uint256 cost, uint256 timestamp);
 
     function addOrderToBag(
         address _patron,
@@ -63,172 +191,145 @@ contract SweetgreenMenu_Spring2022 {
         Order[] orders
     );
 
-    struct Patron {
-        Order[] orders;
-        address address_;
-        uint256 joined;
+    enum Side {
+        None,
+        MisoRoastedVeggies, // seasonal
+        RosemaryFocaccia
     }
 
-    struct Order {
-        uint256[] warmBowls; // `WarmBowl` enum array
-        uint256[] salads; // `Salad` enum array
-        CreateYourOwn[] createYourOwn; // `CreateYourOwn` struct array
-        uint256[] sides; // `Sides` enum array
-        uint256[] beverages; // // `Beverages` enum array
-        uint256[] dietaryRestrictions; // `DietaryRestrictions` enum array
+    enum Beverage {
+        None,
+        HealthAde__PinkLadyApple,
+        HealthAde__Pomegrante,
+        JasmineGreenTea,
+        HibiscusCloverTea,
+        Spindrift__RaspberryLime,
+        Spindrift__Grapefruit,
+        StillWater,
+        SparklingWater
     }
 
-    enum Sides {
-        MISO_ROASTED_VEGGIES, // seasonal
-        ROSEMARY_FOCACCIA
-    }
+    Beverage[] bevs;
 
-    Sides side;
-
-    enum Beverages {
-        HEALTH_ADE_PINK_LADY_APPLE,
-        HEALTH_ADE_POMEGRANATE,
-        JASMINE_GREEN_TEA,
-        HIBISCUS_CLOVER_TEA,
-        SPINDRIFT_RASPBERRY_LIME,
-        SPINDRIFT_GRAPEFRUIT,
-        STILL_WATER,
-        SPARKLING_WATER
-    }
-
-    Beverages bev;
-
-    enum Salads {
-        FARMHOUSE_CAESAR,
-        GUACAMOLE_GREENS,
-        KALE_CAESAR,
-        BUFFALO_CHICKEN_BOWL,
-        SUPER_GREEN_GODDESS,
-        GARDEN_COBB
-    }
-
-    /********************
+    /*********************
      * Main course stuff *
      ********************/
-    enum WarmBowls {
-        FEATURED,
-        CREATEYOUROWN
+    enum WarmBowl {
+        None,
+        Featured,
+        CreateYourOwn
     }
-
-    WarmBowls warmBowl;
 
     enum Featured {
-        AVOCADO_CHICKPEA_CRUNCH,
-        HOT_HONEY_CHICKEN,
-        VALKYRAES_EXTRA_CRISPY_CUSTOM, // seasonal
-        STEELHEAD_REMOULADE, // seasonal
-        MISO_BOWL, // seasonal
-        POTATO_SALAD_SALAD, // seasonal
-        CRISPY_CHICKEN_SALAD // seasonal
+        None,
+        AvocadoChickpeaCrunch,
+        HotHoneyChicken,
+        ValkryaesExtraCrispyCustom, // seasonal
+        SteelheadRemoulade, // seasonal
+        MisoBowl, // seasonal
+        PotatoSaladSalad, // seasonal
+        CrispyChickenSalad // seasonal
     }
 
-    Featured featured;
-
-    /***************************************
-     * struct and enums for `CreateYourOwn` *
-     ***************************************/
     struct CreateYourOwn {
         Base[] base;
-        Toppings[] toppings;
-        Premiums[] premiums;
-        Dressings dressings;
+        Topping[] toppings;
+        Premium[] premiums;
+        Dressing[] dressings;
     }
 
+    enum Salad {
+        None,
+        FarmhouseCaesar,
+        GuacamoleGreens,
+        KaleCaesar,
+        BuffaloChickenBowl,
+        SuperGreenGoddess,
+        GardenCobb
+    }
+
+    /*****************************
+     * enums for `CreateYourOwn` *
+     ****************************/
     enum AddBreadToBowl {
-        YES,
-        NO
+        Yes,
+        No
     }
-
-    AddBreadToBowl abtb;
 
     enum Base {
-        CHOPPED_ROMAINE,
-        ARUGLA,
-        BABY_SPINACH,
-        SPRING_MIX,
-        SHREDDED_KALE,
-        WARM_WILD_RICE,
-        WARM_QUINOA
+        None,
+        ChoppedRomaine,
+        Arugula,
+        BabySpinach,
+        SpringMix,
+        ShreddedKale,
+        WarmWildRice,
+        WarmQuinoa
     }
 
-    Base base;
-
-    enum Toppings {
-        CHOPPED_PICKLES,
-        RAISINS,
-        APPLES,
-        BASIL,
-        RAW_CARROTS,
-        CHICKPEAS,
-        CILANTRO,
-        CUCUMBER,
-        RAW_BEET,
-        RED_ONION,
-        ROASTED_SWEET_POTATO,
-        SHREDDED_CABBAGE,
-        SPICY_BROCCOLI,
-        TOMATO,
-        LENTILS,
-        SPICY_SUNFLOWER_SEEDS,
-        CRISPY_RICE,
-        TOASTED_ALMONDS,
-        TORTILLA_CHIPS,
-        ZAATAR_BREADCRUMBS
+    enum Topping {
+        ChoppedPickles,
+        Raisins,
+        Apples,
+        Basil,
+        RawCarrots,
+        Chickpeas,
+        Cilantro,
+        Cucumber,
+        RawBeen,
+        RedOnion,
+        RoastedSweetPotato,
+        ShreddedCabbage,
+        SpicyBroccoli,
+        Tomato,
+        Lentils,
+        SpicySunflowerSeeds,
+        CrispyRice,
+        ToastedAlmonds,
+        TortillaChips,
+        ZaatarBreadcrumbs
     }
 
-    Toppings[] toppings;
-
-    enum Premiums {
-        MISO_ROOT_VEGETABLES,
-        PICKELED_CARROTS_CELERY,
-        BLUE_CHEESE,
-        GOAT_CHEESE,
-        SHAVED_PARMESAN,
-        PARMESAN_CRISP,
-        HARD_BOILED_EGG,
-        HOT_ROASTED_SWEET_POTATOES,
-        AVOCADO,
-        ROASTED_SESAME_TOFU,
-        WARM_PORTOBELLO_MIX,
-        BLACKENED_CHICKEN,
-        ROASTED_CHICKEN,
-        STEELHEAD
+    enum Premium {
+        MisoRootVegetables,
+        PickeledCarrotsCelery,
+        BlueCheese,
+        GoatCheese,
+        ShavedParmesan,
+        ParmesanCrisp,
+        HardBoiledEgg,
+        HotRoastedSweetPotatoes,
+        Avocado,
+        RoastedSesameTofu,
+        WarmPortobelloMix,
+        BlackenedChicken,
+        RoastedChicken,
+        Steelhead
     }
 
-    Premiums[] premiums;
-
-    enum Dressings {
-        REMOULADE_DRESSNG,
-        GREEN_GODDESS_RANCH_DRESSING,
-        BALSAMIC_VINAIGRETTE,
-        BALSAMIC_VINEGAR,
-        CAESAR_DRESSING,
-        EXTRA_VIRIN_OLIVE_OIL,
-        LIME_CILANTRO_JALAPENO_VINAIGRETTE,
-        MISO_SESAME_GINGER_DRESSING,
-        PESTO_VINAIGRETTE,
-        SPICY_CASHEW_DRESSING,
-        SWEETGREEN_HOT_SAUCE,
-        FRESH_LIME_SQUEEZE,
-        FRESH_LEMON_SQUEEZE,
-        RED_CHILLI
+    enum Dressing {
+        RemouladeDressing,
+        GreenGoddessRanchDressing,
+        BalsamicVinaigrette,
+        BalsamicVinegar,
+        CaesarDressing,
+        ExtraVirginOliveOil,
+        LimeCilantroJalapenoVinaigrette,
+        MisoSesameGingerDressing,
+        PestoVinaigrette,
+        SpicyCashewDressing,
+        Sweetgreen__HotSauce,
+        FreshLimeSqueeze,
+        FreshLemonSqueeze,
+        RedChilli
     }
 
-    Dressings[] dressings;
-
-    enum DietaryRestrictions {
-        DIARY,
-        MEAT,
-        NUTS,
-        GLUTEN,
-        FISH,
-        SOY
+    enum DietaryRestriction {
+        Diary,
+        Meat,
+        Nuts,
+        Gluten,
+        Fish,
+        Soy
     }
-
-    DietaryRestrictions[] dietaryRestrictions;
 }
