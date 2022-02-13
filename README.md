@@ -34,7 +34,7 @@ One potential attack vector is the publicly available price that is paid for the
 
 With the information provided by the order contents that an account address makes, with a complete history of scheduled purchases (i.e. they know _when_ the account usually makes their orders from public transaction history on-chain), a malicious actor could create and submit a volley of fake orders to drive up gas prices for their victims. The malicious actor could also buy out certain items from a vendors menu, preventing their target from being able to make their regularly order. Further protocol design and research could be done to further reduce these kinds of attacks.
 
-## Architecture
+## Project Goals
 <!-- 
 At the moment, these are just ideas for what I think are the core features
 -->
@@ -65,6 +65,9 @@ Need to think of a simple and good enough implementation to solve this
 -->
 
 <!-- ## Architecture/Design (Final) -->
+## Architecture
+
+send order
 
 ## Appendix
 
