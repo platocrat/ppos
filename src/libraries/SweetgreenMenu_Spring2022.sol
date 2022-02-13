@@ -72,15 +72,15 @@ contract SweetgreenMenu_Spring2022 {
             "DietaryRestrictions has duplicates!"
         );
 
-        Order storage order;
-        Patron storage patron;
-
         if (
             keccak256(abi.encode(patrons[_patron].address_)) !=
             keccak256(abi.encodePacked(""))
         ) {
-            patron = patrons[_patron]; // fetch stored Patron
+            Patron patron = patrons[_patron]; // fetch stored Patron
         } else {
+            Patron memory patron;
+
+            // patron.orders = [];
             patron.address_ = _patron;
             patron.joined = block.timestamp;
 
@@ -153,34 +153,6 @@ contract SweetgreenMenu_Spring2022 {
      */
     event Order__Added(Order order, uint256 cost, uint256 timestamp);
 
-    function addOrderToBag(
-        address _patron,
-        Order memory _order,
-        uint256 _quantity,
-        uint256 _cost
-    ) public {
-        Patron storage currentPatron = patrons[_patron];
-
-        // Add order to patron's list of orders
-        for (uint256 i = 0; i < _quantity; i++) {
-            currentPatron.orders.push(_order);
-            emit Ordered(_patron, block.timestamp, _cost, _order);
-        }
-
-        // patron = Order(
-        //     _order.warmBowls,
-        //     _order.salads,
-        //     _order.createYourOwn,
-        //     _order.sides,
-        //     _order.beverages,
-        //     _order.dietaryRestrictions
-        // );
-
-        // patrons[_patron] = Patron(_order)
-
-        // patrons[_patron] = Patron(_order, _patron, _quantity);
-    }
-
     /**
      * @dev Emitted when an order is made.
      */
@@ -188,7 +160,7 @@ contract SweetgreenMenu_Spring2022 {
         address indexed address_,
         uint256 indexed timestamp,
         uint256 cost,
-        Order[] orders
+        Order order
     );
 
     enum Side {
