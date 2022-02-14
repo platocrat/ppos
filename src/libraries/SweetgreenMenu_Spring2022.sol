@@ -194,8 +194,15 @@ contract Sweetgreen {
         DietaryRestriction.Soy
     ];
 
+    /**
+     * @dev Creates 1 order from user's selections on the UI.
+     * @notice This function must ONLY be called if the `hasDuplicates()`
+     *         function, which is defined on the frontend, returns `true`.
+     * @return order_
+     */
     function createOrder(
         address _patron,
+        uint256 cost,
         WarmBowl[] memory _wbs,
         Featured[] memory _feats,
         Salad[] memory _salads,
@@ -232,16 +239,10 @@ contract Sweetgreen {
             _drs.length < 6,
             "You tried adding more than the order limit for DietaryRestrictions!"
         );
-        // @todo Restrict duplicates on the UI as well!
-        require(
-            drsHasDuplicates(_drs) == true,
-            "DietaryRestrictions has duplicates!"
-        );
 
-        Patron memory patron = patrons[_patron];
-
-        patron.address_ = _patron;
-        patron.joined = block.timestamp;
+        // We push to `.orders` after setting the order items individually
+        patrons[_patron].address_ = _patron;
+        patrons[_patron].joined = block.timestamp;
 
         Order memory order;
 
@@ -254,12 +255,36 @@ contract Sweetgreen {
         if (uint256(_bevs[0]) != 0) order.bevs = _bevs; // 6
         if (uint256(_drs[0]) != 0) order.drs = _drs; // 7
 
-        uint256 cost = totalCost(order);
+        // Add order to patron's order history
+        patrons[_patron].orders.push(order);
 
         emit Order__Added(_patron, block.timestamp, cost, order);
 
         return order;
     }
+
+    /**
+     * todo In Javascript, check if `drs` array is subset of `uniqueDRs` array
+     let s = new Set,
+       m = uniqueDRs.length,
+       n = drs.length
+
+     for (let i = 0; i < m; i++) {
+        s.add(uniqueDRs[i])
+     }
+
+     let p = s.size()
+
+     for (let i = 0; i < n; i++) {
+         s.add(drs[i])
+     }
+
+     if (s.size() == p) {
+        return true
+     } else {
+        return false
+     }
+     */
 
     function totalCost(Order memory order) public returns (uint256) {
         uint256 cost;
@@ -273,49 +298,6 @@ contract Sweetgreen {
         // order.drs.cost;
 
         return cost;
-    }
-
-    /**
-     * @dev Checks if the `DietaryRestriction[]` array has duplicates.
-     */
-    function drsHasDuplicates(DietaryRestriction[] memory drs)
-        public
-        view
-        returns (bool)
-    {
-        DietaryRestriction diary = DietaryRestriction.Diary;
-        DietaryRestriction meat = DietaryRestriction.Meat;
-        DietaryRestriction nuts = DietaryRestriction.Nuts;
-        DietaryRestriction gluten = DietaryRestriction.Gluten;
-        DietaryRestriction fish = DietaryRestriction.Fish;
-        DietaryRestriction soy = DietaryRestriction.Soy;
-
-        /**
-         * @todo Check if `drs` input array is a subset of `uniqueDRs` array
-         */
-        if (
-            keccak256(abi.encodePacked(uniqueDRs)) ==
-            keccak256(abi.encodePacked(drs)) || // unique == drs
-            keccak256(abi.encodePacked(diary)) ==
-            keccak256(abi.encodePacked((drs[0]))) || // diary == drs[0]
-            keccak256(abi.encodePacked(meat)) ==
-            keccak256(abi.encodePacked((drs[0]))) // meat == drs[0]
-            keccak256(abi.encodePacked(nuts)) ==
-            keccak256(abi.encodePacked((drs[0]))) // nuts == drs[0]
-            keccak256(abi.encodePacked(gluten)) ==
-            keccak256(abi.encodePacked((drs[0]))) // gluten == drs[0]
-            keccak256(abi.encodePacked(fish)) ==
-            keccak256(abi.encodePacked((drs[0]))) // fish == drs[0]
-            keccak256(abi.encodePacked(soy)) ==
-            keccak256(abi.encodePacked((drs[0]))) // soy == drs[0]
-            // check for size 2, 3, 4, 5, 6, and 7 arrays
-            keccak256(abi.encodePacked(soy)) ==
-            keccak256(abi.encodePacked((drs[0]))) // soy == drs[0]
-        ) return true;
-        if (
-            keccak256(abi.encodePacked(uniqueDRs)) !=
-            keccak256(abi.encodePacked(drs))
-        ) return false;
     }
 
     struct Patron {
