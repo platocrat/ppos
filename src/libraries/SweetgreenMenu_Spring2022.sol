@@ -185,15 +185,6 @@ contract Sweetgreen {
     Beverage[] beverages; // // `Beverages` enum array
     DietaryRestriction[] dietaryRestrictions; // `DietaryRestrictions` enum
 
-    DietaryRestriction[] uniqueDRs = [
-        DietaryRestriction.Diary,
-        DietaryRestriction.Fish,
-        DietaryRestriction.Gluten,
-        DietaryRestriction.Meat,
-        DietaryRestriction.Nuts,
-        DietaryRestriction.Soy
-    ];
-
     /**
      * @dev Creates 1 order from user's selections on the UI.
      * @notice This function must ONLY be called if the `hasDuplicates()`
