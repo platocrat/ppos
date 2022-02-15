@@ -25,7 +25,7 @@ pragma solidity ^0.8.10;
 import "./Sweetgreen/libraries/SgMenu__Spring2022.sol";
 
 /**
- * @todo Implementation of Sweetgreen's order management system
+ * todo Implementation of Sweetgreen's order management system
  */
 contract Sweetgreen {
 
