@@ -2,10 +2,15 @@
 pragma solidity ^0.8.10;
 
 import "../libraries/SgMenu__Spring2022.sol";
+import "../../libraries/OrderManager.sol"; // part of PPoS
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 // Sweetgreen's point-of-sale (PoS) contract
 contract Sweetgreen {
+    using OrderManager for SgMenu__Spring2022.Order;
+
+    SgMenu__Spring2022.Order om;
+
     /**
      * @dev Emitted when an order is made.
      */
@@ -16,7 +21,6 @@ contract Sweetgreen {
         SgMenu__Spring2022.Order order
     );
 
-    mapping(address => SgMenu__Spring2022.Patron[]) public orders;
     mapping(address => SgMenu__Spring2022.Patron) patrons;
 
     // Enum and Struct (CreateYourOwn) arrays
@@ -107,6 +111,9 @@ contract Sweetgreen {
         patrons[_patron].orders.push(order);
 
         emit Order__Added(_patron, block.timestamp, cost, order);
+
+        // todo: Finish this function
+        om.sendOrderToOM();
 
         return order;
     }
