@@ -2,7 +2,7 @@
 
 A _private_ point-of-sale protocol (PPoS).
 
-> Note: this project is inspired by @abigger87's [cloaks](https://github.com/abigger87/cloaks)
+> Note: this project is inspired by @abigger87's [cloaks](https://github.com/abigger87/cloaks) and a [Hayden Adam's tweet about McDonald's equity being tokenized]([url](https://twitter.com/haydenzadams/status/1476959560543965189?s=20&t=322BdX-rvdnD5o4DXbEKcA))
 
 <img width="1029" alt="Screen Shot 2022-06-21 at 1 43 29 PM" src="https://user-images.githubusercontent.com/37757724/174874697-1db9fec3-0fdb-4882-a829-0f65fb8843c7.png">
 
