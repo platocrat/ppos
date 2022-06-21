@@ -12,7 +12,7 @@ error DuplicateDietaryRestriction(bool hasNoDuplicates);
 // Sweetgreen's point-of-sale (PoS) contract
 contract Sweetgreen__Spring2022 {
     address USDC_ADDRESS = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
-    address OM_ADDRESS = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
+    address OM_ADDRESS = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48; // address of OrderManager
 
     /**
      * @dev Emitted when an order is made.
@@ -21,7 +21,7 @@ contract Sweetgreen__Spring2022 {
         address indexed address_,
         uint256 indexed timestamp,
         uint256 cost,
-        SgMenu__Winter2022.Order order,
+        SgMenu__Spring2022.Order order,
         bytes32 orderHash
     );
 
@@ -32,8 +32,8 @@ contract Sweetgreen__Spring2022 {
         bytes32 orderHash
     );
 
-    mapping(address => SgMenu__Winter2022.Patron) patrons;
-    mapping(bytes32 => SgMenu__Winter2022.Order) orders;
+    mapping(address => SgMenu__Spring2022.Patron) patrons;
+    mapping(bytes32 => SgMenu__Spring2022.Order) orders;
 
     /**
      * @dev Creates 1 order from user's selections on the UI.
@@ -57,14 +57,14 @@ contract Sweetgreen__Spring2022 {
     function checkout(
         address _patron,
         uint256 _cost,
-        SgMenu__Winter2022.WarmBowl[] memory _wbs,
-        SgMenu__Winter2022.Salad[] memory _salads,
-        SgMenu__Winter2022.Featured[] memory _feats,
-        SgMenu__Winter2022.CreateYourOwn[] memory _cyos,
-        SgMenu__Winter2022.Side[] memory _sides,
-        SgMenu__Winter2022.Beverage[] memory _bevs,
-        SgMenu__Winter2022.DietaryRestriction[] memory _drs
-    ) public payable returns (SgMenu__Winter2022.Order memory order) {
+        SgMenu__Spring2022.WarmBowl[] memory _wbs,
+        SgMenu__Spring2022.Salad[] memory _salads,
+        SgMenu__Spring2022.Featured[] memory _feats,
+        SgMenu__Spring2022.CreateYourOwn[] memory _cyos,
+        SgMenu__Spring2022.Side[] memory _sides,
+        SgMenu__Spring2022.Beverage[] memory _bevs,
+        SgMenu__Spring2022.DietaryRestriction[] memory _drs
+    ) public payable returns (SgMenu__Spring2022.Order memory order) {
         if (_wbs.length > 5) revert MaxQuantityReached(_wbs.length);
         if (_salads.length > 5) revert MaxQuantityReached(_salads.length);
         if (_feats.length > 5) revert MaxQuantityReached(_feats.length);
@@ -72,15 +72,15 @@ contract Sweetgreen__Spring2022 {
         if (_bevs.length > 5) revert MaxQuantityReached(_bevs.length);
         if (_drs.length > 6) revert MaxQuantityReached(_drs.length);
 
-        if (SgMenu__Winter2022.hasNoDuplicates(_drs))
+        if (SgMenu__Spring2022.hasNoDuplicates(_drs))
             revert DuplicateDietaryRestriction(
-                SgMenu__Winter2022.hasNoDuplicates(_drs)
+                SgMenu__Spring2022.hasNoDuplicates(_drs)
             );
 
         patrons[_patron].address_ = _patron;
         patrons[_patron].joined = block.timestamp;
 
-        order = SgMenu__Winter2022.Order(
+        order = SgMenu__Spring2022.Order(
             _wbs,
             _salads,
             _feats,
@@ -121,18 +121,18 @@ contract Sweetgreen__Spring2022 {
      * Pure functions *
      *****************/
     function createOrderHash(
-        SgMenu__Winter2022.WarmBowl[] memory _wbs,
-        SgMenu__Winter2022.Salad[] memory _salads,
-        SgMenu__Winter2022.Featured[] memory _feats,
-        SgMenu__Winter2022.CreateYourOwn[] memory _cyos,
-        SgMenu__Winter2022.Side[] memory _sides,
-        SgMenu__Winter2022.Beverage[] memory _bevs,
-        SgMenu__Winter2022.DietaryRestriction[] memory _drs
+        SgMenu__Spring2022.WarmBowl[] memory _wbs,
+        SgMenu__Spring2022.Salad[] memory _salads,
+        SgMenu__Spring2022.Featured[] memory _feats,
+        SgMenu__Spring2022.CreateYourOwn[] memory _cyos,
+        SgMenu__Spring2022.Side[] memory _sides,
+        SgMenu__Spring2022.Beverage[] memory _bevs,
+        SgMenu__Spring2022.DietaryRestriction[] memory _drs
     ) internal pure returns (bytes32 orderHash) {
-        SgMenu__Winter2022.Base[] memory bases;
-        SgMenu__Winter2022.Topping[] memory toppings;
-        SgMenu__Winter2022.Premium[] memory premiums;
-        SgMenu__Winter2022.Dressing[] memory dressings;
+        SgMenu__Spring2022.Base[] memory bases;
+        SgMenu__Spring2022.Topping[] memory toppings;
+        SgMenu__Spring2022.Premium[] memory premiums;
+        SgMenu__Spring2022.Dressing[] memory dressings;
 
         for (uint256 i = 0; i < _cyos.length; i++) {
             bases = _cyos[i].bases;
@@ -169,7 +169,7 @@ contract Sweetgreen__Spring2022 {
     function getOrder(bytes32 orderHash)
         public
         view
-        returns (SgMenu__Winter2022.Order memory order)
+        returns (SgMenu__Spring2022.Order memory order)
     {
         return orders[orderHash];
     }
