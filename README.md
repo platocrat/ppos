@@ -2,7 +2,10 @@
 
 A _private_ point-of-sale protocol (PPoS).
 
-> Note: this project is inspired by @abigger87's [cloaks](https://github.com/abigger87/cloaks)
+> Note: this project is inspired by @abigger87's [cloaks]
+
+(htt<img width="1029" alt="Screen Shot 2022-06-21 at 1 42 34 PM" src="https://user-images.githubusercontent.com/37757724/174874554-f9bf813a-1cab-43c0-bf1f-0db74161dacc.png">
+ps://github.com/abigger87/cloaks)
 
 ## Keeping orders private every time
 
