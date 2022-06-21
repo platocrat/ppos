@@ -1,28 +1,14 @@
 # Private Point-of-Sale (PPoS) Protocol
 
-A _private_ point-of-sale protocol (PPoS) that achieves privacy by using a commit-reveal scheme.
+A _private_ point-of-sale protocol (PPoS).
 
-> Note: this project is inspired by @abigger87's [cloaks](https://github.com/abigger87/cloaks), an extensible ERC-721 with a built-in commitment scheme.
+> Note: this project is inspired by @abigger87's [cloaks](https://github.com/abigger87/cloaks)
 
-## Why this commit-reveal scheme is needed
+## Keeping orders private every time
 
-1. Alice (buyer/sender) is hungry and wants to buy a Chicken Pesto Parm from Sweetgreen.
-2. Alice wants to make/send her order on Optimism, but she is concerned about her order being publicly visible on-chain; Alice doesn't want others to know what is in the orders she's making/sending.
-3. Bob (contract/PPoS) is the PPoS as a smart contract on Optimism.
-4. Bob manages and processes the orders that are sent to it.
-5. However, the orders Bob it receives are _kept private from external actors_ by using a _commit-reveal scheme_.
+Since menus generally have a limited number of items, we need to ensure that the hashed order inputs into the `order()` function are unique every time. That is, an order input value, i.e. one Chicken Pesto Parm, will return a unique hashed output for every new order of the same item. The intent of uniquely hashed order values for every individual order is to increase the level of privacy for Alice's order history.
 
-## PPoS's commit-reveal scheme
-
-On a higher-level, PPoS's commit-reveal scheme works as follows:
-
-1. Alice sends her finalized order as a message in a locked box and sends it to Bob.
-2. Bob can't access the message because it's locked in the box, and Alice can't change the message because it's in Bob's possession.
-3. Once Alice confirms that her order is final, she reveals her message of her order to Bob, unlocking the box and showing the message to Bob (contract).
-
-### Keeping orders private every time
-
-Since menus generally have a limited number of items, we need to ensure that the hashed order inputs into the `order()` function are unique every time. That is, an order input value, i.e. 1 Chicken Pesto Parm, will return a unique hashed output for every new order. The intent of uniquely hashed order values for every order is to increase the level of privacy for Alice's order history.
+We can achieve this by adding a salt value along with the hash of the order.
 
 ## Attack vectors
 
@@ -44,9 +30,8 @@ Critical features of the PPoS protocol include:
 
 _Out-going_ transactions from the PPoS protocol are protected against MEV, i.e. against:
 
-* [frontrunning](https://en.wikipedia.org/wiki/Front_running),
-* targeted attacks on order schedules (causes havoc for either the vendor or consumer),
-*
+* [frontrunning](https://en.wikipedia.org/wiki/Front_running)
+* targeted attacks on order schedules (causes havoc for either the vendor or consumer)
 * etc.
 
 ### 2. Privacy
@@ -64,7 +49,7 @@ PPoS aims to maintain the same level of speed for order confirmations and receip
 Need to think of a simple and good enough implementation to solve this
 -->
 
-<!-- ## Architecture/Design (Final) -->
+<!-- ## Architecture/Design -->
 
 ## Appendix
 
